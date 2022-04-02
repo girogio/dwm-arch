@@ -145,6 +145,7 @@ struct Monitor {
 	int tx, tw;           /* bar tray geometry */
 	int mx, my, mw, mh;   /* screen size */
 	int wx, wy, ww, wh;   /* window area  */
+	int gappx;            /* gaps between windows */
 	unsigned int seltags;
 	TagState tagstate;
 	unsigned int sellt;
@@ -238,6 +239,7 @@ static void sendmon(Client *c, Monitor *m);
 static void setclientstate(Client *c, long state);
 static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
+static void setgaps(const Arg *arg);
 static void setlayout(const Arg *arg);
 static void setlayoutsafe(const Arg *arg);
 static void setmfact(const Arg *arg);
@@ -780,6 +782,7 @@ createmon(void)
 	m->nmaster = nmaster;
 	m->showbar = showbar;
 	m->topbar = topbar;
+	m->gappx = gappx;
 	m->bh = bh;
 	m->lt[0] = &layouts[0];
 	m->lt[1] = &layouts[1 % LENGTH(layouts)];
@@ -1522,18 +1525,15 @@ resizeclient(Client *c, int x, int y, int w, int h)
 	XWindowChanges wc;
 
 	c->oldx = c->x; c->x = wc.x = x;
-	c->oldy = c->y; c->y = wc.y = y;
+	c->oldy = c->y; c->y = wc.y = y ;
 	c->oldw = c->w; c->w = wc.width = w;
 	c->oldh = c->h; c->h = wc.height = h;
 	wc.border_width = c->bw;
 	if (((nexttiled(c->mon->clients) == c && !nexttiled(c->next))
 	    || &monocle == c->mon->lt[c->mon->sellt]->arrange)
 	    && !c->isfullscreen && !c->isfloating
-	    && NULL != c->mon->lt[c->mon->sellt]->arrange) {
-		c->w = wc.width += c->bw * 2;
-		c->h = wc.height += c->bw * 2;
+	    && NULL != c->mon->lt[c->mon->sellt]->arrange) 
 		wc.border_width = 0;
-	}
 	XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
 	configure(c);
 	XSync(dpy, False);
@@ -1728,40 +1728,6 @@ sendmon(Client *c, Monitor *m)
 	arrange(NULL);
 }
 
-// void
-// tile(Monitor *m)
-// {
-// 	unsigned int i, n, h, mw, my, ty;
-// 	float mfacts = 0, sfacts = 0;
-// 	Client *c;
-
-// 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
-// 		if (n < m->nmaster)
-// 			mfacts += c->cfact;
-// 		else
-// 			sfacts += c->cfact;
-// 	}
-// 	if (n == 0)
-// 		return;
-
-// 	if (n > m->nmaster)
-// 		mw = m->nmaster ? m->ww * m->mfact : 0;
-// 	else
-// 		mw = m->ww;
-// 	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
-// 		if (i < m->nmaster) {
-// 			h = (m->wh - my) * (c->cfact / mfacts);
-// 			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-// 			my += HEIGHT(c);
-// 			mfacts -= c->cfact;
-// 		} else {
-// 			h = (m->wh - ty) * (c->cfact / sfacts);
-// 			resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
-// 			ty += HEIGHT(c);
-// 			sfacts -= c->cfact;
-// 		}
-// }
-
 void
 setclientstate(Client *c, long state)
 {
@@ -1834,6 +1800,16 @@ setfullscreen(Client *c, int fullscreen)
 		resizeclient(c, c->x, c->y, c->w, c->h);
 		arrange(c->mon);
 	}
+}
+
+void
+setgaps(const Arg *arg)
+{
+	if ((arg->i == gappx) || (selmon->gappx + arg->i < gappx))
+		selmon->gappx = gappx;
+	else
+		selmon->gappx += arg->i;
+	arrange(selmon);
 }
 
 void
@@ -2070,18 +2046,18 @@ tile(Monitor *m)
 	if (n > m->nmaster)
 		mw = m->nmaster ? m->ww * m->mfact : 0;
 	else
-		mw = m->ww;
-	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+		mw = m->ww - m->gappx;
+	for (i = 0, my = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+			h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
+			resize(c, m->wx +m->gappx, m->wy + my, mw - (2*c->bw) - m->gappx, h - (2*c->bw), 0);
 			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c);
+				my += HEIGHT(c) + m->gappx;
 		} else {
-			h = (m->wh - ty) / (n - i);
-			resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+			h = (m->wh - ty) / (n - i) - m->gappx;
+			resize(c, m->wx + mw + m->gappx, m->wy + ty, m->ww - mw - (2*c->bw) - 2*m->gappx, h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c);
+			ty += HEIGHT(c) + m->gappx;
 		}
 }
 

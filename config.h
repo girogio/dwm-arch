@@ -17,9 +17,10 @@ static const char col_gray4[]       = "#eeeeee";
 static const char purple[]          = "#bd93f9";
 static const char background[]	    = "#282a36";
 static const int swallowfloating    = 0; 
+static const char terminal[] = "st";
 
 static const char scratchpadname[] = "scratchpad";
-static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL };
+static const char *scratchpadcmd[] = { terminal, "-t", scratchpadname, NULL };
 
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
@@ -40,13 +41,14 @@ static const Rule rules[] = {
 	{ "Gimp",           NULL,     NULL,           0,         1,          0,           0,        -1 },
 	{ "Firefox",			  NULL,     NULL,           1 << 8,    0,          0,          -1,        -1 },
 	{ "Alacritty",      NULL,     NULL,           0,         0,          1,           0,        -1 },
+	{ "st",             NULL,     NULL,           0,         0,          1,           0,        -1 },
 	{ NULL,             NULL,     "Event Tester", 0,         0,          0,           1,        -1 }, /* xev */
 };
 
 /* layout(s) */
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
-static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
+static const int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 
 
@@ -74,7 +76,7 @@ static const char *volupcmd[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "
 static const char *voldowncmd[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "-10%", NULL };
 static const char *volmutecmd[] = {"pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL };
 static const char *allscreenshotcmd[] = {"maim", "-x", ":0", "~/Screenshots/$(date).png", NULL };
-static const char *termcmd[] = {"alacritty", NULL};
+static const char *termcmd[] = {terminal, NULL};
 
 static Key keys[] = {
 
@@ -84,6 +86,7 @@ static Key keys[] = {
   { 0     ,                       XF86XK_AudioLowerVolume,   spawn,    		    {.v = voldowncmd}},
   { 0     ,                       XF86XK_AudioMute,          spawn,           {.v = volmutecmd}},
   { 0     ,                       XF86XK_AudioRaiseVolume,   spawn,    	  	  {.v = volupcmd}},
+  { MODKEY,                       XK_Return,							   spawn,    	  	  {.v = termcmd}},
   { 0,                            XK_Print,                  spawn,           {.v = allscreenshotcmd}},
 	{ MODKEY,                       XK_grave,  								 togglescratch,  {.v = scratchpadcmd } },
   { MODKEY|ShiftMask,             XK_c,                      quit,            {0} },
@@ -98,6 +101,10 @@ static Key keys[] = {
   { MODKEY,                       XK_minus,  setgaps,        {.i = -1 } },
 	{ MODKEY,                       XK_equal,  setgaps,        {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = gappx  } },
+	// cfacts
+	{ MODKEY,           					  XK_j,      setcfact,       {.f = +0.05} },
+	{ MODKEY,           					  XK_k,      setcfact,       {.f = -0.05} },
+	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
   // layout stuff
 	{ Mod1Mask,                     XK_Return,                 zoom,            {0} },
 	{ MODKEY,                       XK_Tab,                    view,            {0} },
