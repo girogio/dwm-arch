@@ -9,7 +9,7 @@ static const int usealtbar          = 1;        /* 1 means use non-dwm status ba
 static const char *altbarclass      = "Polybar"; /* Alternate bar class name */
 static const char *alttrayname      = "polybar-example_eDP";    /* Polybar tray instance name *1/ */
 static const char *altbarcmd        = "bar.sh"; /* Alternate bar launch command */
-static const unsigned int gappx		= 5;		/* g a p s */
+static const unsigned int gappx		= 8;		/* g a p s */
 static const char *fonts[]          = { "Cascadia Code:size=11" };
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -46,7 +46,7 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static const float mfact     = 0.65; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -91,12 +91,12 @@ static Key keys[] = {
 	{ MODKEY,                       XK_grave,  								 togglescratch,  {.v = scratchpadcmd } },
   { MODKEY|ShiftMask,             XK_c,                      quit,            {0} },
   { MODKEY,                       XK_b,                      togglebar,       {0} },
-	{ Mod1Mask,                     XK_Tab,                    focusstack,      {.i = -1 } },
-	{ Mod1Mask|ShiftMask,           XK_Tab,                    focusstack,      {.i = +1 } },
+	{ Mod1Mask,                     XK_Tab,                    focusstack,      {.i = +1 } },
+	{ Mod1Mask|ShiftMask,           XK_Tab,                    focusstack,      {.i = -1 } },
 	{ MODKEY,                       XK_i,                      incnmaster,      {.i = +1 } },
 	{ MODKEY,                       XK_d,                      incnmaster,      {.i = -1 } },
-	{ MODKEY,                       XK_h,                      setmfact,        {.f = -0.05} },
-	{ MODKEY,                       XK_l,                      setmfact,        {.f = +0.05} },
+	{ MODKEY,                       XK_h,                      setmfact,        {.f = -0.01} },
+	{ MODKEY,                       XK_l,                      setmfact,        {.f = +0.01} },
 	// gaps
   { MODKEY,                       XK_minus,  setgaps,        {.i = -1 } },
 	{ MODKEY,                       XK_equal,  setgaps,        {.i = +1 } },
@@ -108,6 +108,7 @@ static Key keys[] = {
   // layout stuff
 	{ MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
 	{ Mod1Mask,                     XK_Return,                 zoom,            {0} },
+	{ Mod1Mask,					            XK_BackSpace,              killclient,      {0} },
 	{ MODKEY,                       XK_Tab,                    view,            {0} },
 	{ MODKEY|ShiftMask,             XK_q,                      killclient,      {0} },
 	{ MODKEY,                       XK_t,                      setlayout,       {.v = &layouts[0]} },
