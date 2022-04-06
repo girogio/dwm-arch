@@ -108,7 +108,6 @@ static Key keys[] = {
   // layout stuff
 	{ MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
 	{ Mod1Mask,                     XK_Return,                 zoom,            {0} },
-	{ Mod1Mask,					            XK_BackSpace,              killclient,      {0} },
 	{ MODKEY,                       XK_Tab,                    view,            {0} },
 	{ MODKEY|ShiftMask,             XK_q,                      killclient,      {0} },
 	{ MODKEY,                       XK_t,                      setlayout,       {.v = &layouts[0]} },
@@ -116,6 +115,11 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_space,                  togglefloating,  {0} },
 	{ MODKEY,                       XK_0,                      view,            {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,                      tag,             {.ui = ~0 } },
+	// screen stuff
+	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
+	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
